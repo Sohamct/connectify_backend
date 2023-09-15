@@ -1,21 +1,17 @@
 const mongoose = require('mongoose');
 const {Schema} = mongoose;
-const MessageSchema = new Schema({
-    messager : {
+const PostSchema = new Schema({
+    user : {
         type : mongoose.Schema.Types.ObjectId, //it is like foreign key
         ref : 'user' //name of models
     },
-    receiverNotification : {
+    post : {
         type : mongoose.Schema.Types.ObjectId, //it is like foreign key
-        ref : 'user' //name of models
-    },
-    description : {
-        type : String,
-        required : true,
+        ref : 'post' //name of models
     },
     date : {
         type : Date,
         default : Date.now // it will call when user will not enter date(default).
     },
 });
-module.exports = mongoose.model('notification', MessageSchema) // (ModelNAme, nameofschema)
+module.exports = mongoose.model('postLike',PostSchema) // (ModelNAme, nameofschema)

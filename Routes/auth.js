@@ -1,19 +1,32 @@
 const express = require('express');
 const User = require('../models/User');
 const router = express.Router();
-const { body, validationResult } = require('express-validator');
+const { check, body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fetchUser = require('../middleware/fetchUser');
+const moment = require('moment');
+
 
 const JWT_SECRET = 'SohamIsagood$bOY';
 //ROUTE 1 : Create a User using : POST "/api/auth/createuser". Doesn't require auth.
 
 router.post('/createuser',[
+    check('userName')
+    .trim().notEmpty().withMessage('Username cannot be empty')
+    .isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
     body('email', 'Enter a valid email address').isEmail(),
-    body('name', 'Enter a valid name.').isLength({min : 2}),
+    body('firstName', 'Enter a valid name.').isLength({min : 2}),
+    body('lastName', 'Enter a valid name.').isLength({min : 2}),
     body('password', 'Password must be atleast of 5 characters').isLength({min : 5}),
+    body('gender', 'Enter a valid gender').isIn(['male', 'female', 'other']),
+    body('dob', 'Enter a valid date of birth')
+  .custom((value) => {
+    const parsedDate = moment(value, 'YYYY-MM-DD', true);
+    return parsedDate.isValid();
+  })
 ], async (req, resp) => {
+    console.log("API IS CALLING");
     let success = false;
     // if there are errors, return Nad request and the errors
     const errors = validationResult(req);
@@ -31,10 +44,18 @@ router.post('/createuser',[
         //creat a new user
         const salt = await bcrypt.genSalt(10)
         const securedPassword = await bcrypt.hash(req.body.password, salt);
+        const dobMoment = moment(req.body.dob, 'YYYY-MM-DD');
+        const age = moment().diff(dobMoment, 'years');
+
         user = await User.create({
-            name : req.body.name,
+            userName: req.body.userName,
+            firstName : req.body.firstName,
             password : securedPassword,
             email : req.body.email,
+            lastName : req.body.lastName,
+            gender : req.body.gender,
+            dob : req.body.dob,
+            age : age
         });
         const data = {
             user: {
@@ -46,21 +67,23 @@ router.post('/createuser',[
         
         // resp.json(user);
         success = true;
-
+        console.log("success fully registered")
         resp.json({success, authtoken})
-        }catch(error){
+    }catch(error){
             console.log(error.message);
             resp.status(500).send("Unexpected error occured");
-        }
+    }
     // .then(user => resp.json(user))
     // .catch(error => {resp.json({error : "Entered Email Address is already registered!", message : error.message})});
-
+    
 })
 
 
-//ROUTE 2 : Login
+// //ROUTE 2 : Login
 router.post('/login',[
-    body('email', 'Enter a valid email address').isEmail(),
+    check('userName')
+    .trim().notEmpty().withMessage('Username cannot be empty')
+    .isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
     body('password', 'Password can not be blank').exists(),
 ], async (req, resp) => {
 
@@ -73,10 +96,10 @@ router.post('/login',[
         return resp.status(400).json({errors : errors.array()});
     }
 
-    const {email, password} = req.body;
+    const {userName, password} = req.body;
 
     try{
-        let user = await User.findOne({email});
+        let user = await User.findOne({userName});
         if(!user){
             return resp.status(400).json({error : "Please try login with correct Credentials."});
         }
@@ -101,7 +124,7 @@ router.post('/login',[
 })
 
 
-//ROUTE 3 : get logged in user detail POST:  /api/auth.getuser  Login Required
+// //ROUTE 3 : get logged in user detail POST:  /api/auth.getuser  Login Required
 
 router.post('/getuser',fetchUser, async (req, resp) => {
     try{

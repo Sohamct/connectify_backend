@@ -1,9 +1,18 @@
 const mongoose = require('mongoose');
 const {Schema} = mongoose;
 const UserSchema = new Schema({
-    name : {
+    firstName : {
         type : String,
         required : true
+    },
+    lastName : {
+        type : String,
+        required : true
+    },
+    userName : {
+        type : String,
+        required : true,
+        unique : true
     },
     email : {
         type : String,
@@ -11,11 +20,19 @@ const UserSchema = new Schema({
     },
     password : {
         type : String,
-        default : "General"
+        required : true,
+    },
+    gender : {
+        type : String,
+        required : true
     },
     date : {
         type : Date,
         default : Date.now // it will call when user will not enter date(default).
+    },
+    dob : {
+        type : Date,
+        required : true
     },
 });
 module.exports = mongoose.model('user', UserSchema) // (ModelNAme, nameofschema)

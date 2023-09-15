@@ -5,7 +5,7 @@ const GroupSchema = new Schema({
        type :  mongoose.Schema.Types.ObjectId,
         ref : 'user'
     }],
-    description : {
+    title : {
         type : String,
         required : true
     },

@@ -8,6 +8,7 @@ const GroupMessage = require('./models/GroupMessage');
 const PostLike = require('./models/PostLike');
 const CommentLike = require('./models/CommentLike');
 const Follower = require('./models/Follower');
+const cors = require('cors'); 
 
 
 const connectToMongo = require('./db');
@@ -16,8 +17,14 @@ const express = require('express');
 connectToMongo();
 
 const app = express();
-
 app.use(express.json()); 
+
+app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true
+  }));
+
 app.use('/api/auth', require('./Routes/auth'))
 app.use('/api/post', require('./Routes/post'))
 // app.use('/api/message', require('./Routes/message'))

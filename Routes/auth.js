@@ -52,6 +52,7 @@ router.post('/createuser', [
             const dobMoment = moment(req.body.dob, 'YYYY-MM-DD');
             const age = moment().diff(dobMoment, 'years');
             console.log("Processing thr age...")
+
             user = await User.create({
                 userName: req.body.userName,
                 firstName: req.body.firstName,
@@ -126,7 +127,7 @@ router.post('/login', [
         }
         const authtoken = jwt.sign(data, JWT_SECRET);
         success = true;
-
+        console.log("Logged in");
         resp.json({ success, authtoken });
     } catch (error) {
         console.log(error.message);

@@ -4,15 +4,19 @@ const JWT_SECRET = 'SohamIsagood$bOY';
 const fetchUser = (req, resp, next) => {
     // get the user form the jwt and id to req object.
     const token = req.header('auth-token');
+    console.log("Comming...")
     if(!token){
-        resp.status(401).send({error : "Please authenticate using a valid token"});
+        console.log("no token...")
+        return resp.status(401).send({error : "Please login to connectify"});
     }
-    try{
+    try{ 
+        console.log("Verifing ...");
         const data = jwt.verify(token, JWT_SECRET);
+        console.log("Verified");
         req.user = data.user;
         next();
     }catch(error){
-        resp.status(401).send({error : "Please authenticate using a valid token"});
+        return resp.status(401).send({error : "Please authenticate using a valid token"});
     }
 }
 

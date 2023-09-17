@@ -9,8 +9,7 @@ const PostLike = require('./models/PostLike');
 const CommentLike = require('./models/CommentLike');
 const Follower = require('./models/Follower');
 const cors = require('cors'); 
-
-
+const fetchUser = require('./middleware/fetchUser');
 const connectToMongo = require('./db');
 const express = require('express');
 
@@ -27,6 +26,7 @@ app.use(cors({
 
 app.use('/api/auth', require('./Routes/auth'))
 app.use('/api/post', require('./Routes/post'))
+app.use('/api/folk', require('./Routes/folk'))
 // app.use('/api/message', require('./Routes/message'))
 // app.use('/api/like', require('./Routes/like'))
 

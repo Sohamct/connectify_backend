@@ -3,6 +3,9 @@ const express = require('express');
 const router = express.Router();
 const fetchUser = require('../middleware/fetchUser');
 const { check, body, validationResult } = require('express-validator');
+const Post = require('../models/Post')
+const multer = require('multer');
+
 
 router.get('/fetchAllPosts', fetchUser, async (req, res) => {
   try {
@@ -13,25 +16,48 @@ router.get('/fetchAllPosts', fetchUser, async (req, res) => {
   }
 });
 
-router.post('/addPost', fetchUser, [
-  body('title', 'Title can not be empty!').isLength({min : 1}),
-  body('description', 'Description can not be empty!').isLength({min : 1}),
-],async(req, resp) => {
-  try{
-      const errors = validationResult(req);
-
-  // id there are errors, return bad request and the errors
-  if(!errors.isEmpty()){
-      return resp.status(400).json({errors : errors.array()});
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '../Frontend/connectify/src/component/images');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now()
+    cb(null, uniqueSuffix + '-'+ file.originalname)
   }
-  const {title, description, tag, date} = req.body;
+})
 
-  const note = new Notes({title, description, tag, date, user : req.user.id});
-  const savedNote = await note.save()
-  resp.send(savedNote);
+const upload = multer({ storage: storage })
+
+router.post('/newPost', fetchUser, upload.single("image") ,async (req, resp) => {
+
+  const {title, description } = req.body;
+  console.log("Is it comming here")
+  
+    console.log(req.body);
+    const imageName = req.file.filename
+    console.log("id: ", req.user.id)
+    try{
+      const post = await Post.create({
+        title : title,
+        description: description,
+        image: imageName,
+        user: req.user.id
+      })
+      resp.json({status: "ok"});
+    }catch(error){
+      resp.json({status: error});
+    }
+})
+
+router.get("/getPost", fetchUser, async (req, resp) => {
+  try{
+    const userId = req.user.id;
+    console.log(userId)
+    await Post.find({user: userId}).then(data => {
+      resp.send({status : "ok", data : data});
+    })
   }catch(error){
-      console.log(error.message);
-      resp.status(500).send("Internal Server Error");
+    resp.json({status: error});
   }
 })
 

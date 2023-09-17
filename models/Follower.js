@@ -9,5 +9,9 @@ const UserSchema = new Schema({
         type : mongoose.Schema.Types.ObjectId, //it is like foreign key
         ref : 'user' //name of models
     },
+    status: {
+        type: Boolean,
+        default: false
+    }
 });
 module.exports = mongoose.model('follower', UserSchema) // (ModelNAme, nameofschema)

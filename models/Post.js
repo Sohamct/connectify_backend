@@ -13,9 +13,8 @@ const PostSchema = new Schema({
         type : String,
     },
     image: {
-      data: Buffer, // Binary data for the image/video
-      contentType: String, // MIME type of the image/video
-      fileName: String, // Original file name
+        type : String,
+        required : true
     },
     date : {
         type : Date,

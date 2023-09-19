@@ -5,17 +5,39 @@ const fetchUser = require('../middleware/fetchUser');
 const moment = require('moment');
 const User = require('../models/User');
 
-router.post('/getFollowersFollowing', fetchUser, async (req, resp) => {
+router.post('/getFollowers', fetchUser, async (req, resp) => {
   try{
-      console.log("getting FollowersFollowing")
+      console.log("getting Followers")
       const followers = await Follower.find({ following: req.user.id, status: true });
       const followersIds = followers.map((data) => data.follower.toString());
 
-      const followings = await Follower.find({ follower: req.user.id, status: true });
-      const followingsIds = followings.map((data) => data.follower.toString());
+    console.log(followersIds);
 
-      const result = followersIds.filter(item => followingsIds.includes(item));
-      resp.send({result: result});
+      const followings = await Follower.find({ follower: req.user.id, status: true });
+      const followingsIds = followings.map((data) => data.following.toString());
+      console.log(followingsIds);
+      const commonIds = followersIds.filter(id => followingsIds.includes(id));
+      const commonUsers = await User.find(
+        {_id : {$in : commonIds}}
+      );
+
+
+      const requested = await Follower.find({ follower: req.user.id, status: false });
+      const requestedIds = requested.map((data) => data.following.toString());
+      const commonRequestedIds = requestedIds.filter((id) => followersIds.includes(id));
+      const commonRequestedUsers = await User.find(
+        {_id : {$in : commonRequestedIds}}
+      );
+
+      let list = followersIds.filter(id => !followingsIds.includes(id))
+      list = list.filter(id => !commonIds.includes(id))
+      const onlyFollowers = await User.find({
+        _id : {$in : list},
+        password: 0
+      })
+
+
+      resp.send({commonUsers: commonUsers, commonRequestedUsers: commonRequestedUsers, onlyFollowers: onlyFollowers});
 
   }catch(err){
       resp.send({error: err});
@@ -43,7 +65,7 @@ router.post('/getPendingRequest', fetchUser, async (req, resp) => {
   try{
       console.log("getting requests")
       const pendingRequests = await Follower.find({ follower: req.user.id, status: false });
-      const pendingRequestsIds = pendingRequests.map((request) => request.follower.toString());
+      const pendingRequestsIds = pendingRequests.map((request) => request.following.toString());
       const pendingRequestsUsers = await User.find(
         { _id: { $in: pendingRequestsIds } }, // Find users whose _id is in the requestsIds array
         { password: 0 },
@@ -115,6 +137,25 @@ router.post('/cancelRequest', fetchUser, async (req, resp) => {
       resp.send({ success: false, error: error.message });
   }
 });
+
+// done
+router.post('/denieRequest', fetchUser, async (req, resp) => {
+  try {
+      const loggedInUserId = req.user.id;
+      const toId = req.body.toId;
+    console.log("Making request ...");
+    console.log(loggedInUserId);
+    console.log(toId);
+    await Follower.deleteOne(
+      { follower: toId, following: loggedInUserId },
+    );
+      console.log("denieRequest")
+      resp.send({ success: true, message: 'Request canceled successfully' });
+  } catch (error) {
+      resp.send({ success: false, error: error.message });
+  }
+});
+
 
 // done
 router.post('/makeRequest', fetchUser, async (req, resp) => {

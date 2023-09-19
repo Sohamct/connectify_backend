@@ -113,7 +113,7 @@ router.post('/login', [
     try {
         let user = await User.findOne({ userName });
         if (!user) {
-            return resp.status(400).json({ error: "Please try login with correct Credentials." });
+            return resp.status(400).json({success, error: "Please try login with correct Credentials." });
         }
         const passwordCompare = await bcrypt.compare(password, user.password);
 

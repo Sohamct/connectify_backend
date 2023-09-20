@@ -34,5 +34,8 @@ const UserSchema = new Schema({
         type : Date,
         required : true
     },
+    age : {
+        type : Number,
+    },
 });
 module.exports = mongoose.model('user', UserSchema) // (ModelNAme, nameofschema)

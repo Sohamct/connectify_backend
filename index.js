@@ -5,7 +5,7 @@ const Notification = require('./models/Notification');
 const Post = require('./models/Post');
 const User = require('./models/User');
 const GroupMessage = require('./models/GroupMessage');
-const PostLike = require('./models/PostLike');
+const LikePost = require('./models/LikePost');
 const CommentLike = require('./models/CommentLike');
 const Follower = require('./models/Follower');
 const cors = require('cors'); 
@@ -28,7 +28,6 @@ app.use('/api/auth', require('./Routes/auth'))
 app.use('/api/post', require('./Routes/post'))
 app.use('/api/folk', require('./Routes/folk'))
 // app.use('/api/message', require('./Routes/message'))
-// app.use('/api/like', require('./Routes/like'))
 
 app.get('/', (req, res) => {
     res.send('Hello World!')

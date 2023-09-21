@@ -151,7 +151,9 @@ router.post('/getUsers', fetchUser, async (req, resp) => {
 
 router.get('/validateUser', fetchUser, async (req, resp) => {
     try{
+        
         if(req.user.id){
+            console.log('validated')
             return resp.json({status: true});
         }else{
             return resp.json({status: false});

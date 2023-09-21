@@ -11,7 +11,7 @@ router.get('/fetchAllPosts', fetchUser, async (req, res) => {
   try {
     const posts = await Post.find({ });
     // console.log("fetching post");
-    console.log(posts);
+    // console.log(posts);
     res.send({posts: posts});
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -146,7 +146,66 @@ router.get('/getLikedPost', fetchUser, async (req, resp) => {
   }
 });
 
+router.get('/countLikedPost', fetchUser, async (req, resp) => {
+  try {
+    console.log("Getting count liked post");
+    const posts = await Post.find({});
+    // console.log("count liked", posts.post)
+    const postIds = posts.map((p) => p._id.toString());
+    // console.log("postids ", postIds);
+    const likedPost = await LikePost.find({status: true});
 
+    const likedPostIds = likedPost.map((lp) =>lp.post.toString());
+    // console.log("likedPostIds", likedPostIds);
+    let mp = {};
+
+    postIds.forEach(pId => {
+      likedPostIds.forEach( lpId=> {
+        if(lpId === pId){
+          if (mp[pId] === undefined) {
+            mp[pId] = 0;
+          }
+          mp[pId]++;
+        }
+      })
+    });
+
+    resp.json({status: true, mp: mp})
+  } catch (err) {
+    resp.json({ status: err });
+  }
+});
+
+
+router.get('/countDislikedPost', fetchUser, async (req, resp) => {
+  try {
+    // console.log("Getting count liked post");
+    const posts = await Post.find({});
+    // console.log("count liked", posts.post)
+    const postIds = posts.map((p) => p._id.toString());
+    // console.log("postids ", postIds);
+    const dislikedPost = await LikePost.find({status: false});
+
+    const dislikedPostIds = dislikedPost.map((dlp) =>dlp.post.toString());
+    // console.log("likedPostIds", likedPostIds);
+    let mp = {};
+
+    postIds.forEach(pId => {
+      dislikedPostIds.forEach( dlpId=> {
+        if(dlpId === pId){
+          if (mp[pId] === undefined) {
+            mp[pId] = 0;
+          }
+          mp[pId]++;
+        }
+      })
+    });
+
+    resp.json({status: true, mp: mp})
+  } catch (err) {
+    resp.json({ status: err });
+  }
+});
 
 router.get('/getDislikedPost', fetchUser, async (req, resp) => {
   try {

@@ -148,4 +148,16 @@ router.post('/getUsers', fetchUser, async (req, resp) => {
         resp.status(500).send("Internal Server Error");
     }
 })
+
+router.get('/validateUser', fetchUser, async (req, resp) => {
+    try{
+        if(req.user.id){
+            return resp.json({status: true});
+        }else{
+            return resp.json({status: false});
+        }
+    }catch(err){
+        return resp.json({status: false, error: err});
+    }
+})
 module.exports = router;

@@ -138,20 +138,21 @@ router.post('/login', [
 
 // //ROUTE 3 : get logged in user detail POST:  /api/auth.getuser  Login Required
 
-router.post('/getUsers', fetchUser, async (req, resp) => {
+router.get('/getUser', fetchUser, async (req, resp) => {
     try {
         const userId = req.user.id;
-        const user = await User.findById(userId).select("-password");
-        resp.send(user);
+        const user = await User.findOne({_id: userId}).select("-password");
+        // console.log(us)
+        resp.send({status: true, userName: user.userName});
     } catch (error) {
         console.log(error.message);
-        resp.status(500).send("Internal Server Error");
+        resp.status(500).send({status: false , erorr: "Internal Server Error"});
     }
 })
 
 router.get('/validateUser', fetchUser, async (req, resp) => {
     try{
-        
+        console.log(req.user.id);
         if(req.user.id){
             console.log('validated')
             return resp.json({status: true});

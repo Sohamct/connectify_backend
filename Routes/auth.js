@@ -150,6 +150,19 @@ router.get('/getUser', fetchUser, async (req, resp) => {
     }
 })
 
+
+router.get('/getName', fetchUser, async (req, resp) => {
+    try {
+        const userId = req.user.id;
+        const user = await User.findOne({_id: userId}).select("-password");
+        console.log((user.firstName + user.lastName))
+        resp.send({status: true, name: (user.firstName +' ' + user.lastName)});
+    } catch (error) {
+        console.log(error.message);
+        resp.status(500).send({status: false , erorr: "Internal Server Error"});
+    }
+})
+
 router.get('/validateUser', fetchUser, async (req, resp) => {
     try{
         console.log(req.user.id);

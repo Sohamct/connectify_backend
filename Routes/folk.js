@@ -264,32 +264,26 @@ router.post('/acceptRequest', fetchUser, async (req, resp) => {
       resp.send({ success: false, error: err.message });
     }
   });
+
+  router.post('/countFollowers', fetchUser, async(req, resp) => {
+    try{
+      const followers = await Follower.find({status: true, following: req.user.id});
+      const count = followers.length;
+      resp.send({status: true, count: count});
+    }catch(error){
+      resp.send({status: false, error: error});
+    }
+  })
   
-// router.post('/getNonMutualFollowers', fetchUser, async (req, resp) => {
-//     try {
-//         // Get the users who follow the authenticated user
-//         const followers = await Follower.find({ following: req.user.id });
-
-//         // Get the users whom the authenticated user follows
-//         const following = await Follower.find({ follower: req.user.id });
-
-//         // Extract the user IDs from both lists
-//         const followerIds = followers.map(follower => follower.follower.toString());
-//         const followingIds = following.map(following => following.following.toString());
-
-//         // Find the users who do not appear in both lists
-//         const nonMutualFollowers = followers.filter(follower => !followingIds.includes(follower.follower.toString()));
-//         const nonMutualFollowing = following.filter(following => !followerIds.includes(following.following.toString()));
-
-//         resp.send({
-//             success: true,
-//             nonMutualFollowers: nonMutualFollowers,
-//             nonMutualFollowing: nonMutualFollowing
-//         });
-//     } catch (err) {
-//         resp.send({ success: false, error: err });
-//     }
-// });
-
+  
+  router.post('/countFollowings', fetchUser, async(req, resp) => {
+    try{
+      const followings = await Follower.find({status: true, follower: req.user.id});
+      const count = followings.length;
+      resp.send({status: true, count: count});
+    }catch(error){
+      resp.send({status: false, error: error});
+    }
+  })
 
 module.exports = router;

@@ -6,15 +6,15 @@ const fetchUser = (req, resp, next) => {
 
     try {
         const token = req.header('auth-token');
-        console.log("Comming...")
+        // console.log("Comming...")
         if (!token) {
-            console.log("no token...")
+            // console.log("no token...")
             return resp.status(401).send({ error: "Please login to connectify" });
         }
 
-        console.log("Verifing ...");
+        // console.log("Verifing ...");
         const data = jwt.verify(token, JWT_SECRET);
-        console.log("Verified");
+        // console.log("Verified");
         req.user = data.user;
         next();
     } catch (error) {

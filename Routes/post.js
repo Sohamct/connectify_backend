@@ -288,4 +288,20 @@ router.post('/remove', fetchUser, async (req, resp) => {
   }
 })
 
+router.post('/getLikedUsers', fetchUser, async(req, resp) => {
+  try{
+    const postId = req.body.postId;
+    // console.log(req.user.id);
+    // console.log(postId);
+    const LikedPosts = await LikePost.find({post: postId});
+    const likedUserIds = LikedPosts.map(lp => lp.user.toString());
+    const likedPostUsers = await User.find({_id : {$in : likedUserIds}}, {password: 0});
+    // console.log("likedPostUsers", likedPostUsers);
+    resp.send({status: true, likedPostUsers: likedPostUsers});
+  }catch(error){
+    resp.send({status: false});
+  }
+})
+
+
 module.exports = router;

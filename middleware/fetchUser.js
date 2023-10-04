@@ -1,25 +1,30 @@
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = 'SohamIsagood$bOY';
 
-const fetchUser = (req, resp, next) => {
-    // get the user form the jwt and id to req object.
-
+const fetchUser = (req, res, next) => {
     try {
         const token = req.header('auth-token');
-        // console.log("Comming...")
+
         if (!token) {
-            // console.log("no token...")
-            return resp.status(401).send({ error: "Please login to connectify" });
+            return res.status(401).json({ error: "Please login to connectify" });
         }
 
-        // console.log("Verifing ...");
         const data = jwt.verify(token, JWT_SECRET);
-        // console.log("Verified");
+
+        if (!data.user) {
+            throw new Error('Invalid token format');
+        }
+
         req.user = data.user;
         next();
     } catch (error) {
-        console.log("UNEXPECTED ERROR OCCURED")
-        return resp.status(401).send({ error: "unexpected error while connecting with connectify" });
+        console.error("Error:", error.message);
+
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({ error: "Invalid token" });
+        }
+
+        return res.status(401).json({ error: "Unexpected error while connecting with connectify" });
     }
 }
 

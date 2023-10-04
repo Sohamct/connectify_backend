@@ -37,5 +37,8 @@ const UserSchema = new Schema({
     age : {
         type : Number,
     },
+    image: {
+        type : String
+    },
 });
 module.exports = mongoose.model('user', UserSchema) // (ModelNAme, nameofschema)

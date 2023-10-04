@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fetchUser = require('../middleware/fetchUser');
 const moment = require('moment');
+const multer = require('multer');
 
 
 const JWT_SECRET = 'SohamIsagood$bOY';
@@ -52,6 +53,7 @@ router.post('/createuser', [
             const dobMoment = moment(req.body.dob, 'YYYY-MM-DD');
             const age = moment().diff(dobMoment, 'years');
             console.log("Processing thr age...")
+
 
             user = await User.create({
                 userName: req.body.userName,
@@ -143,7 +145,7 @@ router.get('/getUser', fetchUser, async (req, resp) => {
         const userId = req.user.id;
         const user = await User.findOne({_id: userId}).select("-password");
         // console.log(us)
-        resp.send({status: true, userName: user.userName});
+        resp.send({status: true, userName: user.userName, user:user});
     } catch (error) {
         console.log(error.message);
         resp.status(500).send({status: false , erorr: "Internal Server Error"});
@@ -155,7 +157,7 @@ router.get('/getName', fetchUser, async (req, resp) => {
     try {
         const userId = req.user.id;
         const user = await User.findOne({_id: userId}).select("-password");
-        console.log((user.firstName + user.lastName))
+        //console.log((user.firstName + user.lastName))
         resp.send({status: true, name: (user.firstName +' ' + user.lastName)});
     } catch (error) {
         console.log(error.message);
@@ -176,4 +178,43 @@ router.get('/validateUser', fetchUser, async (req, resp) => {
         return resp.json({status: false, error: err});
     }
 })
+
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, '../Frontend/connectify/src/component/images');
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now()
+      cb(null, uniqueSuffix + '-' + file.originalname)
+    }
+  })
+  
+  const upload = multer({ storage: storage })
+  
+  router.post('/updateProfile', fetchUser, upload.single("image"), async (req, resp) => {
+    // Check if req.file exists
+    if (!req.file) {
+      return resp.status(400).json({ error: "No file uploaded" });
+    }
+  
+    const imageName = req.file.filename;
+  
+    try {
+      const updatedProfile = await User.findByIdAndUpdate(
+        req.user.id,
+        { image: imageName },
+        { new: true }
+      );
+      resp.json({ status: "ok", profile : updatedProfile });
+    } catch (error) {
+      resp.json({ status: error });
+    }
+})
+
+
+  
+
+
 module.exports = router;

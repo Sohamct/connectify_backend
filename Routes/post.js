@@ -293,7 +293,7 @@ router.post('/getLikedUsers', fetchUser, async(req, resp) => {
     const postId = req.body.postId;
     // console.log(req.user.id);
     // console.log(postId);
-    const LikedPosts = await LikePost.find({post: postId});
+    const LikedPosts = await LikePost.find({post: postId, status: true});
     const likedUserIds = LikedPosts.map(lp => lp.user.toString());
     const likedPostUsers = await User.find({_id : {$in : likedUserIds}}, {password: 0});
     // console.log("likedPostUsers", likedPostUsers);
